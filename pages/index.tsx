@@ -6,11 +6,13 @@ import * as THREE from "three";
 import { PerspectiveCamera, Stage } from "@react-three/drei";
 import styles from "../styles/Home.module.css";
 import { boxesArray } from "./logo";
+import { boxesArray2 } from "./logo2";
 import { PerspectiveCamera as PerspectiveCameraType } from "three";
 
 type Props = {
-  meshprops: JSX.IntrinsicElements["mesh"];
+  position: number[];
   color: string;
+  index: number;
 };
 
 const Home: NextPage = () => {
@@ -35,10 +37,22 @@ const Home: NextPage = () => {
   const Box = (props: Props) => {
     const [hovered, setHover] = useState(false);
     const [active, setActive] = useState(false);
+    const randomNum = props.index / 3;
 
     // position={new THREE.Vector3(-2.4, -2.4, 2.4)}
     return (
-      <mesh {...props.meshprops} scale={active ? 1.5 : 1}>
+      <mesh
+        position={
+          new THREE.Vector3(
+            props.position[0] +
+              (scrollY / 1000) * props.position[0] * randomNum,
+            props.position[1] +
+              (scrollY / 1000) * props.position[1] * randomNum,
+            props.position[2] + (scrollY / 1000) * props.position[2] * randomNum
+          )
+        }
+        scale={active ? 1.5 : 1}
+      >
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color={props.color} />
       </mesh>
@@ -47,15 +61,19 @@ const Home: NextPage = () => {
 
   const Boxes = () => {
     const meshRef = useRef<THREE.Mesh>(null!);
-    useFrame((state, delta) => (meshRef.current.rotation.x = scrollY / 1000));
+    useFrame((state, delta) => {
+      meshRef.current.rotation.x = scrollY / 1000;
+      meshRef.current.rotation.y = scrollY / 1000;
+    });
 
     return (
       <instancedMesh ref={meshRef}>
-        {boxesArray.map((item, index) => (
+        {boxesArray2.map((item, index) => (
           <Box
             key={index}
-            meshprops={{ position: item.position }}
+            position={item.position}
             color={item.color}
+            index={index}
           />
         ))}
       </instancedMesh>
