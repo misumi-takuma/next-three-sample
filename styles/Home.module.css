@@ -119,3 +119,11 @@
     flex-direction: column;
   }
 }
+
+.section {
+  height: 80vh;
+}
+
+.section:nth-child(even) {
+  background-color: #ddd;
+}

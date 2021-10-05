@@ -3,7 +3,7 @@ import Head from "next/head";
 import React, { useRef, useState, useMemo, useEffect } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { PerspectiveCamera, OrbitControls, Stage } from "@react-three/drei";
+import { PerspectiveCamera, Stage } from "@react-three/drei";
 import styles from "../styles/Home.module.css";
 import { boxesArray } from "./logo";
 import { PerspectiveCamera as PerspectiveCameraType } from "three";
@@ -15,25 +15,30 @@ type Props = {
 
 const Home: NextPage = () => {
   const camera = React.useRef<PerspectiveCameraType>();
+  const [scrollY, setScrollY] = useState<number>(0);
+
+  const onScroll = (): void => {
+    const scrollValue = Math.max(
+      window.pageYOffset,
+      document.documentElement.scrollTop,
+      document.body.scrollTop
+    );
+
+    setScrollY(scrollValue);
+  };
+
+  useEffect(() => {
+    document.addEventListener("scroll", onScroll);
+    return (): void => document.removeEventListener("scroll", onScroll);
+  });
 
   const Box = (props: Props) => {
-    // const mesh = useRef<THREE.Mesh>(null!);
-    // Set up state for the hovered and active state
     const [hovered, setHover] = useState(false);
     const [active, setActive] = useState(false);
-    // Subscribe this component to the render-loop, rotate the mesh every frame
-    // useFrame((state, delta) => (mesh.current.rotation.x += 0.01));
-    // Return the view, these are regular Threejs elements expressed in JSX
 
+    // position={new THREE.Vector3(-2.4, -2.4, 2.4)}
     return (
-      <mesh
-        {...props.meshprops}
-        // ref={mesh}
-        scale={active ? 1.5 : 1}
-        // onClick={(event) => setActive(!active)}
-        // onPointerOver={(event) => setHover(true)}
-        // onPointerOut={(event) => setHover(false)}
-      >
+      <mesh {...props.meshprops} scale={active ? 1.5 : 1}>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color={props.color} />
       </mesh>
@@ -42,7 +47,7 @@ const Home: NextPage = () => {
 
   const Boxes = () => {
     const meshRef = useRef<THREE.Mesh>(null!);
-    useFrame((state, delta) => (meshRef.current.rotation.x += 0.01));
+    useFrame((state, delta) => (meshRef.current.rotation.x = scrollY / 1000));
 
     return (
       <instancedMesh ref={meshRef}>
@@ -65,7 +70,7 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
+      <main>
         <h1 className={styles.title}>
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
@@ -73,7 +78,10 @@ const Home: NextPage = () => {
         <Canvas
           style={{
             width: 100 + "vw",
-            height: 80 + "vh",
+            height: 100 + "vh",
+            position: "fixed",
+            top: 0,
+            left: 0,
           }}
         >
           <PerspectiveCamera
@@ -82,11 +90,23 @@ const Home: NextPage = () => {
             position={[0, 0, 12]}
             makeDefault
           />
-          <OrbitControls camera={camera.current} enableZoom={true} />
           <ambientLight />
           <pointLight position={[8, 8, 6]} />
           <Boxes />
         </Canvas>
+
+        <section className={styles.section}>
+          <h2>Section1</h2>
+        </section>
+        <section className={styles.section}>
+          <h2>Section2</h2>
+        </section>
+        <section className={styles.section}>
+          <h2>Section3</h2>
+        </section>
+        <section className={styles.section}>
+          <h2>Section4</h2>
+        </section>
       </main>
     </div>
   );
